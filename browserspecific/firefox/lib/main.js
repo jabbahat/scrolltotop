@@ -159,7 +159,9 @@ pageMod.PageMod({
 var openOptioinPage = function(updated) {
 	// don't open the option page if it is already open
 	var optionPageUrl = data.url("options/options.html");
-	for each (var openTab in tabs) {
+	var index;
+	for (index = 0; index < tabs.length; ++index) {
+		var openTab = tabs[index];
 		if(openTab.url.toLowerCase().indexOf(optionPageUrl.toLowerCase()) != -1) {
 			// page is already open
 			openTab.activate();
