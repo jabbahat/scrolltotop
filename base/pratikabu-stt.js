@@ -91,6 +91,19 @@ var pratikabustt = {
 		return atBottom;
 	},
 	
+	getFloatLocation: function() {
+		// TODO
+		var olderFloat = pratikabu_stt_prefs.hLoc;
+		var isLeft = "left" === olderFloat;
+		var div2Width = 96;
+		if("left" === olderFloat && 0 > $(window).width() - ($("#pratikabuSTTDiv").position().left + div2Width)) {
+			isLeft = false;
+		} else if("right" === olderFloat && 0 > ($("#pratikabuSTTDiv").position().left - div2Width)) {
+			isLeft = true;
+		}
+		return isLeft ? "left" : "right";
+	},
+	
 	rotateDown: function(animateRotation) {
 		if(pratikabu_stt_pollabelIconSwitch && 180 !== $("#pratikabuSTTSettings").getRotateAngle()) {
 			$("#pratikabuSTTSettings").rotate({ animateTo: 180 });
@@ -123,16 +136,16 @@ var pratikabustt = {
 	
 	createAddonHtml: function() {
 		// create div tag
-		var divTag = '<div id="pratikabuSTTDiv" class="pratikabusttdiv-no-print"><img id="pratikabuSTTArrowUp" ';
+		var divTag = '<div id="pratikabuSTTDiv" class="pratikabusttdiv-no-print"><img id="pratikabuSTTArrowUp" />';
 		if(pratikabu_stt_dualArrow) {
 			if("hr" === pratikabu_stt_prefs.dArrang) {
-				divTag = divTag + '/><img id="pratikabuSTTArrowDown" />';
+				divTag = divTag + '<img id="pratikabuSTTArrowDown" />';
 			} else {// if("vr" === pratikabu_stt_prefs.dArrang) {
 				divTag = divTag + 'style="display: block !important;" />' +
 						'<img id="pratikabuSTTArrowDown" style="display: block !important;" />';
 			}
 		} else {
-			divTag = divTag + 'style="float: left;" />' +
+			divTag = divTag +
 					'<div id="pratikabuSTTDiv2" class="pratikabusttdiv-no-print">' +
 						'<img id="pratikabuSTTPageUp" /><img id="pratikabuSTTClear" />' +
 						'<img id="pratikabuSTTPageDown" /><img id="pratikabuSTTSettings" />' +
@@ -158,10 +171,6 @@ var pratikabustt = {
 			pratikabustt.hoverEffect("#pratikabuSTTPageUp");
 			pratikabustt.hoverEffect("#pratikabuSTTPageDown");
 		}
-		// add the main div hover effects
-		$("#pratikabuSTTDiv").hover(
-			function() { pratikabustt.mainDivHover(true); },
-			function() { pratikabustt.mainDivHover(false); });
 		
 		// add the scroll up logic
 		$("#pratikabuSTTArrowUp").click(function() {
@@ -179,6 +188,12 @@ var pratikabustt = {
 				return false;
 			});
 		} else {
+			// add the main div hover effects
+			$("#pratikabuSTTDiv").hover(
+				function() { pratikabustt.mainDivHover(true); },
+				function() { pratikabustt.mainDivHover(false); }
+			);
+			
 			// add the scroll down logic
 			$("#pratikabuSTTSettings").click(function() {
 				if(pratikabu_stt_pollabelIconSwitch) {
@@ -265,30 +280,17 @@ var pratikabustt = {
 				$("#pratikabuSTTPageDown").remove();
 			}
 			
-			// change the location of the main image
-			var pratikabu_stt_float = pratikabu_stt_prefs.hLoc;
-			if("right" === pratikabu_stt_prefs.hLoc) {// replace the locations of the icons
-				if(showPagerButtons) {
-					$("#pratikabuSTTPageUp").before($("#pratikabuSTTClear"));
-					$("#pratikabuSTTPageDown").before($("#pratikabuSTTSettings"));
-				}
-				$("#pratikabuSTTDiv2").css("marginLeft", 0 + "px");
-			} else {
-				$("#pratikabuSTTDiv2").css("marginLeft", pratikabu_stt_prefs.iconSize + "px");
-			}
-			
-			$("#pratikabuSTTArrowUp").css("float", pratikabu_stt_float);
 			$("#pratikabuSTTArrowUp").css("width", pratikabu_stt_prefs.iconSize + "px");
 			$("#pratikabuSTTArrowUp").css("height", pratikabu_stt_prefs.iconSize + "px");
-			
-			if(!pratikabu_stt_prefs.hideControls) {
-				pratikabustt.showHideControlOptions(true);
-			}
 		}
 		
 		if(pratikabu_stt_prefs.blackAndWhite) {
 			$(".pratikabuSTTImg").addClass("pratikabuSTTBlackAndWhite");
 		}
+		
+		pratikabustt.relocateControlOptions(pratikabu_stt_prefs.hLoc);
+		
+		$("#pratikabuSTTDiv").drags();
 		
 		return true;
 	},
@@ -483,6 +485,14 @@ var pratikabustt = {
 			if("pager" === pratikabu_stt_prefs.controlOption) {// check whether the page up is shown or not
 				divSize += otherImagesSize;// add pixels based on the settings
 			}
+			
+			// TODO
+			var oldFloat = pratikabu_stt_prefs.hLoc;
+			var newFloat = pratikabustt.getFloatLocation();
+			if(oldFloat != newFloat) {
+				pratikabustt.relocateControlOptions(newFloat);
+			}
+			
 			$("#pratikabuSTTDiv").css("width", divSize + "px");
 			$("#pratikabuSTTDiv2").fadeTo("slow", pratikabu_stt_hoverOpacity);
 		} else {
@@ -492,6 +502,29 @@ var pratikabustt = {
 				$("#pratikabuSTTDiv").css("width", divSize + "px");
 			});
 		}
+	},
+	
+	relocateControlOptions: function(newFloatLocation){
+		pratikabu_stt_prefs.hLoc = newFloatLocation;
+		// change the location of the main image
+		var showPagerButtons = "pager" === pratikabu_stt_prefs.controlOption;
+		var pratikabu_stt_float = newFloatLocation;
+		if("right" === pratikabu_stt_float) {// replace the locations of the icons
+			if(showPagerButtons) {
+				$("#pratikabuSTTPageUp").before($("#pratikabuSTTClear"));
+				$("#pratikabuSTTPageDown").before($("#pratikabuSTTSettings"));
+			}
+			$("#pratikabuSTTDiv2").css("marginLeft", 0 + "px");
+//							$("#pratikabuSTTDiv2").css("marginLeft", "-" + pratikabu_stt_prefs.iconSize + "px");
+		} else {
+			if(showPagerButtons) {
+				$("#pratikabuSTTClear").before($("#pratikabuSTTPageUp"));
+				$("#pratikabuSTTSettings").before($("#pratikabuSTTPageDown"));
+			}
+			$("#pratikabuSTTDiv2").css("marginLeft", pratikabu_stt_prefs.iconSize + "px");
+		}
+	
+		$("#pratikabuSTTArrowUp").css("float", pratikabu_stt_float);
 	},
 	
 	getOtherImageSize: function() {

@@ -27,6 +27,7 @@
 			"js":[
 				"thirdparty/pratikabu-jquery.js",
 				"thirdparty/pratikabu-jquery-rotate.js",
+				"thirdparty/draggable.js",
 				"browserspecific/pratikabu-stt-impl.js",
 				"pratikabu-stt.js"
 			]
