@@ -14,6 +14,7 @@ var pratikabu_stt_lastDocumentTop = 0;// this variable will hold the document to
 var pratikabu_stt_autoHide = false;
 var pratikabu_stt_ahRequestCount = 0;// counter to handle autohide in seconds
 var pratikabu_stt_pollabelIconSwitch = false;// maintains whether or not the pollable downward icon is visible or not
+var isDragDirty = false;// this variable will tell whether the drag has happened or not
 
 var pratikabustt = {
 	scrollHandlerOneTime: function() {
@@ -290,7 +291,14 @@ var pratikabustt = {
 		
 		pratikabustt.relocateControlOptions(pratikabu_stt_prefs.hLoc);
 		
-		$("#pratikabuSTTDiv").drags();
+		// TODO
+		$("#pratikabuSTTDiv").drags(undefined, function(eventData) {
+			isDragDirty = isDragDirty || eventData.hasMoved;
+			if(isDragDirty) {
+				$(this).removeProp("bottom");// TODO not working
+				$(this).removeProp("right");
+			}
+		});
 		
 		return true;
 	},
@@ -478,28 +486,42 @@ var pratikabustt = {
 	},
 	
 	showHideControlOptions: function(boolShow) {
+		var $mainElement = $("#pratikabuSTTDiv");
+		var otherImagesSize = pratikabustt.getOtherImageSize();
+		var divSize = pratikabu_stt_prefs.iconSize + otherImagesSize;
+		if("pager" === pratikabu_stt_prefs.controlOption) {// check whether the page up is shown or not
+			divSize += otherImagesSize;// add pixels based on the settings
+		}
+		
 		if(boolShow) {
 			$("#pratikabuSTTDiv2").stop(true, true);// to execute the fading out method
-			var otherImagesSize = pratikabustt.getOtherImageSize();
-			var divSize = pratikabu_stt_prefs.iconSize + otherImagesSize;
-			if("pager" === pratikabu_stt_prefs.controlOption) {// check whether the page up is shown or not
-				divSize += otherImagesSize;// add pixels based on the settings
-			}
 			
 			// TODO
 			var oldFloat = pratikabu_stt_prefs.hLoc;
 			var newFloat = pratikabustt.getFloatLocation();
-			if(oldFloat != newFloat) {
+			if(isDragDirty && oldFloat != newFloat) {
 				pratikabustt.relocateControlOptions(newFloat);
 			}
 			
 			$("#pratikabuSTTDiv").css("width", divSize + "px");
 			$("#pratikabuSTTDiv2").fadeTo("slow", pratikabu_stt_hoverOpacity);
+			
+			if(isDragDirty && "right" === pratikabu_stt_prefs.hLoc) {
+				$mainElement.offset({
+                    top: $mainElement.position().top,
+                    left: $mainElement.position().left - (divSize - pratikabu_stt_prefs.iconSize)
+                });
+			}
 		} else {
 			$("#pratikabuSTTDiv2").stop(true, true).fadeTo("slow", 0, function() {
 				$("#pratikabuSTTDiv2").hide();
-				var divSize = pratikabu_stt_prefs.iconSize;
-				$("#pratikabuSTTDiv").css("width", divSize + "px");
+				if(isDragDirty && "right" === pratikabu_stt_prefs.hLoc) {
+					$mainElement.offset({
+	                    top: $mainElement.position().top,
+	                    left: $mainElement.position().left + (divSize - pratikabu_stt_prefs.iconSize)
+	                });
+				}
+				$mainElement.css("width", pratikabu_stt_prefs.iconSize + "px");
 			});
 		}
 	},
@@ -515,7 +537,6 @@ var pratikabustt = {
 				$("#pratikabuSTTPageDown").before($("#pratikabuSTTSettings"));
 			}
 			$("#pratikabuSTTDiv2").css("marginLeft", 0 + "px");
-//							$("#pratikabuSTTDiv2").css("marginLeft", "-" + pratikabu_stt_prefs.iconSize + "px");
 		} else {
 			if(showPagerButtons) {
 				$("#pratikabuSTTClear").before($("#pratikabuSTTPageUp"));

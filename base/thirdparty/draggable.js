@@ -18,7 +18,7 @@
 // Next update?? NEVER!!! Should create a similar plugin that is not called `simple`!
 
 (function($) {
-    $.fn.drags = function(opt) {
+    $.fn.drags = function(opt, dragCompleteFunction) {
 
         opt = $.extend({
             handle: "",
@@ -29,8 +29,10 @@
 
         var $selected = null;
         var $elements = (opt.handle === "") ? this : this.find(opt.handle);
+        var hasMoved = false;
 
         $elements.css('cursor', opt.cursor).on("mousedown", function(e) {
+        	hasMoved = false;
             if(opt.handle === "") {
                 $selected = $(this);
                 $selected.addClass(opt.draggableClass);
@@ -47,6 +49,7 @@
                     top: e.pageY + pos_y - drg_h,
                     left: e.pageX + pos_x - drg_w
                 });
+                hasMoved = true;
             }).on("mouseup", function() {
                 $(this).off("mousemove"); // Unbind events from document
                 if ($selected !== null) {
@@ -63,6 +66,12 @@
                     .find(opt.handle).removeClass(opt.activeHandleClass);
             }
             $selected = null;
+            if(dragCompleteFunction) {
+            	var eventData = {
+            		"hasMoved": hasMoved
+            	};
+            	dragCompleteFunction(eventData);
+            }
         });
 
         return this;
