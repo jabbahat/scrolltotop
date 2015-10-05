@@ -15,6 +15,7 @@ var pratikabu_stt_autoHide = false;
 var pratikabu_stt_ahRequestCount = 0;// counter to handle autohide in seconds
 var pratikabu_stt_pollabelIconSwitch = false;// maintains whether or not the pollable downward icon is visible or not
 var isDragDirty = false;// this variable will tell whether the drag has happened or not
+var pratikabu_stt_bilRequestCount = 0;// counter to handle be in limit check
 
 var pratikabustt = {
 	scrollHandlerOneTime: function() {
@@ -295,8 +296,8 @@ var pratikabustt = {
 		$("#pratikabuSTTDiv").drags(undefined, function(eventData) {
 			isDragDirty = isDragDirty || eventData.hasMoved;
 			if(isDragDirty) {
-				$(this).removeProp("bottom");// TODO not working
-				$(this).removeProp("right");
+				$("#pratikabuSTTDiv").css({"bottom": "", "right": ""});
+				pratikabustt.triggerCheckForLimits();
 			}
 		});
 		
@@ -628,6 +629,57 @@ var pratikabustt = {
 				pratikabu_stt_autoHide = false;
 				$(window).unbind('scroll', pratikabustt.scrollHandlerAutoHide);
 			}
+		}
+		
+		$( window ).resize(function() {
+			pratikabustt.triggerCheckForLimits();
+		});
+	},
+	
+	triggerCheckForLimits: function() {
+		// TODO
+		pratikabu_stt_bilRequestCount++;
+		setTimeout(function() {
+			if(0 === --pratikabu_stt_bilRequestCount) {
+				pratikabustt.beInLimits();
+			}
+		}, 500);
+	},
+	
+	/**
+	 * This method will make sure the addon is in limits
+	 */
+	beInLimits: function() {
+		console.log("beInLimits");
+		// TODO
+		if(!isDragDirty) {
+			return;
+		}
+		console.log("checking limits");
+		var mainDiv = $("#pratikabuSTTDiv");
+		var top = mainDiv.position().top, left = mainDiv.position().left;
+		
+		if(0 < top && $(window).height() > top && 0 < left && $(window).width() > left) {
+			console.log("in limits");
+			return;
+		}
+		console.log("not in limits");
+		var defaultGap = "20px";
+		
+		if(0 > top) {
+			mainDiv.css("top", defaultGap);
+			mainDiv.css("bottom", "");
+		} else if($(window).height() < top) {
+			mainDiv.css("bottom", defaultGap);
+			mainDiv.css("top", "");
+		}
+		
+		if(0 > left) {
+			mainDiv.css("left", defaultGap);
+			mainDiv.css("right", "");
+		} else if($(window).width() < left) {
+			mainDiv.css("right", defaultGap);
+			mainDiv.css("left", "");
 		}
 	},
 	
