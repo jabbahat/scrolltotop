@@ -15,7 +15,6 @@ var pratikabu_stt_autoHide = false;
 var pratikabu_stt_ahRequestCount = 0;// counter to handle autohide in seconds
 var pratikabu_stt_pollabelIconSwitch = false;// maintains whether or not the pollable downward icon is visible or not
 var isDragDirty = false;// this variable will tell whether the drag has happened or not
-var pratikabu_stt_bilRequestCount = 0;// counter to handle be in limit check
 
 var pratikabustt = {
 	scrollHandlerOneTime: function() {
@@ -91,19 +90,6 @@ var pratikabustt = {
 	isAtBottom: function() {
 		var atBottom = $(document).scrollTop() >= ($(document).height() - pratikabustt.getWindowHeight());
 		return atBottom;
-	},
-	
-	getFloatLocation: function() {
-		// TODO
-		var olderFloat = pratikabu_stt_prefs.hLoc;
-		var isLeft = "left" === olderFloat;
-		var div2Width = 96;
-		if("left" === olderFloat && 0 > $(window).width() - ($("#pratikabuSTTDiv").position().left + div2Width)) {
-			isLeft = false;
-		} else if("right" === olderFloat && 0 > ($("#pratikabuSTTDiv").position().left - div2Width)) {
-			isLeft = true;
-		}
-		return isLeft ? "left" : "right";
 	},
 	
 	rotateDown: function(animateRotation) {
@@ -292,14 +278,16 @@ var pratikabustt = {
 		
 		pratikabustt.relocateControlOptions(pratikabu_stt_prefs.hLoc);
 		
-		// TODO
-		$("#pratikabuSTTDiv").drags(undefined, function(eventData) {
-			isDragDirty = isDragDirty || eventData.hasMoved;
-			if(isDragDirty) {
-				$("#pratikabuSTTDiv").css({"bottom": "", "right": ""});
-				pratikabustt.triggerCheckForLimits();
-			}
-		});
+		// TODO handle click event, also remove bottom and right
+		// Drag event will be added only when there is no control option enabled
+		if("none" === pratikabu_stt_prefs.controlOption) {
+			$("#pratikabuSTTDiv").drags(undefined, function(eventData) {
+				isDragDirty = isDragDirty || eventData.hasMoved;
+				if(isDragDirty) {
+					$("#pratikabuSTTDiv").css({"bottom": "", "right": ""});
+				}
+			});
+		}
 		
 		return true;
 	},
@@ -488,50 +476,26 @@ var pratikabustt = {
 	
 	showHideControlOptions: function(boolShow) {
 		var $mainElement = $("#pratikabuSTTDiv");
-		var otherImagesSize = pratikabustt.getOtherImageSize();
-		var divSize = pratikabu_stt_prefs.iconSize + otherImagesSize;
-		if("pager" === pratikabu_stt_prefs.controlOption) {// check whether the page up is shown or not
-			divSize += otherImagesSize;// add pixels based on the settings
-		}
-		
 		if(boolShow) {
 			$("#pratikabuSTTDiv2").stop(true, true);// to execute the fading out method
-			
-			// TODO
-			var oldFloat = pratikabu_stt_prefs.hLoc;
-			var newFloat = pratikabustt.getFloatLocation();
-			if(isDragDirty && oldFloat != newFloat) {
-				pratikabustt.relocateControlOptions(newFloat);
+			var otherImagesSize = pratikabustt.getOtherImageSize();
+			var divSize = pratikabu_stt_prefs.iconSize + otherImagesSize;
+			if("pager" === pratikabu_stt_prefs.controlOption) {// check whether the page up is shown or not
+				divSize += otherImagesSize;// add pixels based on the settings
 			}
-			
-			$("#pratikabuSTTDiv").css("width", divSize + "px");
+			$mainElement.css("width", divSize + "px");
 			$("#pratikabuSTTDiv2").fadeTo("slow", pratikabu_stt_hoverOpacity);
-			
-			if(isDragDirty && "right" === pratikabu_stt_prefs.hLoc) {
-				$mainElement.offset({
-                    top: $mainElement.position().top,
-                    left: $mainElement.position().left - (divSize - pratikabu_stt_prefs.iconSize)
-                });
-			}
 		} else {
 			$("#pratikabuSTTDiv2").stop(true, true).fadeTo("slow", 0, function() {
 				$("#pratikabuSTTDiv2").hide();
-				if(isDragDirty && "right" === pratikabu_stt_prefs.hLoc) {
-					$mainElement.offset({
-	                    top: $mainElement.position().top,
-	                    left: $mainElement.position().left + (divSize - pratikabu_stt_prefs.iconSize)
-	                });
-				}
 				$mainElement.css("width", pratikabu_stt_prefs.iconSize + "px");
 			});
 		}
 	},
 	
-	relocateControlOptions: function(newFloatLocation){
-		pratikabu_stt_prefs.hLoc = newFloatLocation;
+	relocateControlOptions: function(pratikabu_stt_float){
 		// change the location of the main image
 		var showPagerButtons = "pager" === pratikabu_stt_prefs.controlOption;
-		var pratikabu_stt_float = newFloatLocation;
 		if("right" === pratikabu_stt_float) {// replace the locations of the icons
 			if(showPagerButtons) {
 				$("#pratikabuSTTPageUp").before($("#pratikabuSTTClear"));
@@ -546,7 +510,7 @@ var pratikabustt = {
 			$("#pratikabuSTTDiv2").css("marginLeft", pratikabu_stt_prefs.iconSize + "px");
 		}
 	
-		$("#pratikabuSTTArrowUp").css("float", pratikabu_stt_float);
+		$("#pratikabuSTTArrowUp").css("float", "middle" === pratikabu_stt_float ? "left" : pratikabu_stt_float);
 	},
 	
 	getOtherImageSize: function() {
@@ -629,57 +593,6 @@ var pratikabustt = {
 				pratikabu_stt_autoHide = false;
 				$(window).unbind('scroll', pratikabustt.scrollHandlerAutoHide);
 			}
-		}
-		
-		$( window ).resize(function() {
-			pratikabustt.triggerCheckForLimits();
-		});
-	},
-	
-	triggerCheckForLimits: function() {
-		// TODO
-		pratikabu_stt_bilRequestCount++;
-		setTimeout(function() {
-			if(0 === --pratikabu_stt_bilRequestCount) {
-				pratikabustt.beInLimits();
-			}
-		}, 500);
-	},
-	
-	/**
-	 * This method will make sure the addon is in limits
-	 */
-	beInLimits: function() {
-		console.log("beInLimits");
-		// TODO
-		if(!isDragDirty) {
-			return;
-		}
-		console.log("checking limits");
-		var mainDiv = $("#pratikabuSTTDiv");
-		var top = mainDiv.position().top, left = mainDiv.position().left;
-		
-		if(0 < top && $(window).height() > top && 0 < left && $(window).width() > left) {
-			console.log("in limits");
-			return;
-		}
-		console.log("not in limits");
-		var defaultGap = "20px";
-		
-		if(0 > top) {
-			mainDiv.css("top", defaultGap);
-			mainDiv.css("bottom", "");
-		} else if($(window).height() < top) {
-			mainDiv.css("bottom", defaultGap);
-			mainDiv.css("top", "");
-		}
-		
-		if(0 > left) {
-			mainDiv.css("left", defaultGap);
-			mainDiv.css("right", "");
-		} else if($(window).width() < left) {
-			mainDiv.css("right", defaultGap);
-			mainDiv.css("left", "");
 		}
 	},
 	
