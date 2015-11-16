@@ -92,8 +92,8 @@ var pratikabustt = {
 	},
 	
 	rotateDown: function(animateRotation) {
-		if(pratikabu_stt_pollabelIconSwitch && 180 !== $("#pratikabuSTTSettings").getRotateAngle()) {
-			$("#pratikabuSTTSettings").rotate({ animateTo: 180 });
+		if(pratikabu_stt_pollabelIconSwitch && 180 !== $(".pratikabuSTTSettings").getRotateAngle()) {
+			$(".pratikabuSTTSettings").rotate({ animateTo: 180 });
 		}
 		
 		if(true === pratikabu_stt_flipScrolling) {
@@ -102,15 +102,15 @@ var pratikabustt = {
 		
 		pratikabu_stt_flipScrolling = true;
 		if(animateRotation) {
-			$("#pratikabuSTTArrowUp").rotate({ animateTo: 180 });
+			$(".pratikabuSTTArrowUp").rotate({ animateTo: 180 });
 		} else {
-			$("#pratikabuSTTArrowUp").rotate(180);
+			$(".pratikabuSTTArrowUp").rotate(180);
 		}
 	},
 	
 	rotateUp: function() {
-		if(pratikabu_stt_pollabelIconSwitch && 0 !== $("#pratikabuSTTSettings").getRotateAngle()) {
-			$("#pratikabuSTTSettings").rotate({ animateTo: 0 });
+		if(pratikabu_stt_pollabelIconSwitch && 0 !== $(".pratikabuSTTSettings").getRotateAngle()) {
+			$(".pratikabuSTTSettings").rotate({ animateTo: 0 });
 		}
 		
 		if(false === pratikabu_stt_flipScrolling) {
@@ -118,53 +118,39 @@ var pratikabustt = {
 		}
 		
 		pratikabu_stt_flipScrolling = false;
-		$("#pratikabuSTTArrowUp").rotate({ animateTo: 0 });
+		$(".pratikabuSTTArrowUp").rotate({ animateTo: 0 });
 	},
 	
-	createAddonHtml: function() {
-		// create div tag
-		var divTag = '<div id="pratikabuSTTDiv" class="pratikabusttdiv-no-print"><img id="pratikabuSTTArrowUp" ';
-		if(pratikabu_stt_dualArrow) {
-			if("hr" === pratikabu_stt_prefs.dArrang) {
-				divTag = divTag + '/><img id="pratikabuSTTArrowDown" />';
-			} else {// if("vr" === pratikabu_stt_prefs.dArrang) {
-				divTag = divTag + 'style="display: block !important;" />' +
-						'<img id="pratikabuSTTArrowDown" style="display: block !important;" />';
-			}
-		} else {
-			divTag = divTag + 'style="float: left;" />' +
-					'<div id="pratikabuSTTDiv2" class="pratikabusttdiv-no-print">' +
-						'<img id="pratikabuSTTPageUp" /><img id="pratikabuSTTClear" />' +
-						'<img id="pratikabuSTTPageDown" /><img id="pratikabuSTTSettings" />' +
-					'</div>';
-		}
-		divTag = divTag + '</div>';
-		
-		$('body').prepend(divTag);
+	createAddon: function() {
+		pratikabustt.createAddonHtml("Left");
+		pratikabustt.createAddonHtml("Right");
 		
 		// check whether the css has been applied to the div tag or not, if not then remove it from DOM
 		// as it got added to a wrong iFrame
-		if("fixed" !== $("#pratikabuSTTDiv").css("position")) {
-			pratikabustt.removeCompleteAddonFromPage();
-			return false;
-		}
+//		if("fixed" !== $("#pratikabuSTTDivLeft").css("position") ||
+//				"fixed" !== $("#pratikabuSTTDivRight").css("position")) {
+//			pratikabustt.removeCompleteAddonFromPage();
+//			return false;
+//		}
 		
-		pratikabustt.hoverEffect("#pratikabuSTTArrowUp");
-		if(pratikabu_stt_dualArrow) {
-			pratikabustt.hoverEffect("#pratikabuSTTArrowDown");
-		} else {
-			pratikabustt.hoverEffect("#pratikabuSTTClear");
-			pratikabustt.hoverEffect("#pratikabuSTTSettings");
-			pratikabustt.hoverEffect("#pratikabuSTTPageUp");
-			pratikabustt.hoverEffect("#pratikabuSTTPageDown");
-		}
 		// add the main div hover effects
-		$("#pratikabuSTTDiv").hover(
+		$(".pratikabuSTTDiv").hover(
 			function() { pratikabustt.mainDivHover(true); },
 			function() { pratikabustt.mainDivHover(false); });
 		
+		// add hover handlers
+		pratikabustt.hoverEffect(".pratikabuSTTArrowUp");
+		if(pratikabu_stt_dualArrow) {
+			pratikabustt.hoverEffect(".pratikabuSTTArrowDown");
+		} else {
+			pratikabustt.hoverEffect(".pratikabuSTTClear");
+			pratikabustt.hoverEffect(".pratikabuSTTSettings");
+			pratikabustt.hoverEffect(".pratikabuSTTPageUp");
+			pratikabustt.hoverEffect(".pratikabuSTTPageDown");
+		}
+		
 		// add the scroll up logic
-		$("#pratikabuSTTArrowUp").click(function() {
+		$(".pratikabuSTTArrowUp").click(function() {
 			if(pratikabu_stt_flipScrolling) {
 				pratikabustt.scrollToBottom();
 			} else {
@@ -174,13 +160,13 @@ var pratikabustt = {
 		});
 		if(pratikabu_stt_dualArrow) {
 			// add the scroll down logic
-			$("#pratikabuSTTArrowDown").click(function() {
+			$(".pratikabuSTTArrowDown").click(function() {
 				pratikabustt.scrollToBottom();
 				return false;
 			});
 		} else {
 			// add the scroll down logic
-			$("#pratikabuSTTSettings").click(function() {
+			$(".pratikabuSTTSettings").click(function() {
 				if(pratikabu_stt_pollabelIconSwitch) {
 					if(pratikabu_stt_flipScrolling) {
 						pratikabustt.scrollToTop();
@@ -194,24 +180,23 @@ var pratikabustt = {
 			});
 			
 			// add rotation for scrolling down
-			$("#pratikabuSTTSettings").hover(
+			$(".pratikabuSTTSettings").hover(
 				function() { if(!pratikabu_stt_pollabelIconSwitch) { $(this).rotate({ animateTo: 180 });} },
 				function() { if(!pratikabu_stt_pollabelIconSwitch) { $(this).rotate({ animateTo: 0 });} });
 			
 			// add the remove div logic
-			$("#pratikabuSTTClear").click(function() {
+			$(".pratikabuSTTClear").click(function() {
 				pratikabustt.removeCompleteAddonFromPage();
 			});
 			
 			// add page up and page down handlers
-			$("#pratikabuSTTPageUp").click(function() { pratikabustt.scrollPageScreen(1); });
-			$("#pratikabuSTTPageDown").click(function() { pratikabustt.scrollPageScreen(-1); });
+			$(".pratikabuSTTPageUp").click(function() { pratikabustt.scrollPageScreen(1); });
+			$(".pratikabuSTTPageDown").click(function() { pratikabustt.scrollPageScreen(-1); });
 		}
 		
 		// populate from preferences
 		var vloc = pratikabu_stt_prefs.vLoc;
 		var vlocVal = pratikabu_stt_prefs.vOffset + "px";
-		var hloc = pratikabu_stt_prefs.hLoc;
 		var hlocVal = pratikabu_stt_prefs.hOffset + "px";
 		
 		if("middle" === vloc) {
@@ -219,13 +204,9 @@ var pratikabustt = {
 			vlocVal = "50%";
 		}
 		
-		if("middle" === hloc) {
-			hloc = "left";
-			hlocVal = "50%";
-		}
-		
-		$("#pratikabuSTTDiv").css(vloc, vlocVal);// set the vertical alignment of the image
-		$("#pratikabuSTTDiv").css(hloc, hlocVal);// set the horizontal alignment of the image
+		$(".pratikabuSTTDiv").css(vloc, vlocVal);// set the vertical alignment of the image
+		$("#pratikabuSTTDivLeft").css("left", hlocVal);// set the horizontal alignment of the image
+		$("#pratikabuSTTDivRight").css("right", hlocVal);// set the horizontal alignment of the image
 		
 		// set the image
 		if(pratikabu_stt_dualArrow) {
@@ -250,7 +231,7 @@ var pratikabustt = {
 			if(showPagerButtons) {// check whether the page up is shown or not
 				divSize += otherImagesSize;// add pixels based on the settings
 			}
-			$("#pratikabuSTTDiv2").css("width", divSize + "px");
+			$(".pratikabuSTTDiv2").css("width", divSize + "px");
 			
 			pratikabustt_browser_impl.setImageForId("pratikabuSTTClear", "clear-" + otherImagesSize + ".png");
 			pratikabustt.setSettingsIcon(pratikabu_stt_pollabelIconSwitch);
@@ -259,27 +240,17 @@ var pratikabustt = {
 			if(showPagerButtons) {
 				pratikabustt_browser_impl.setImageForId("pratikabuSTTPageUp", "pageup-" + otherImagesSize + ".png");
 				pratikabustt_browser_impl.setImageForId("pratikabuSTTPageDown", "pageup-" + otherImagesSize + ".png");
-				$("#pratikabuSTTPageDown").rotate(180);
+				$(".pratikabuSTTPageDown").rotate(180);
 			} else {
-				$("#pratikabuSTTPageUp").remove();
-				$("#pratikabuSTTPageDown").remove();
+				$(".pratikabuSTTPageUp").remove();
+				$(".pratikabuSTTPageDown").remove();
 			}
 			
 			// change the location of the main image
-			var pratikabu_stt_float = pratikabu_stt_prefs.hLoc;
-			if("right" === pratikabu_stt_prefs.hLoc) {// replace the locations of the icons
-				if(showPagerButtons) {
-					$("#pratikabuSTTPageUp").before($("#pratikabuSTTClear"));
-					$("#pratikabuSTTPageDown").before($("#pratikabuSTTSettings"));
-				}
-				$("#pratikabuSTTDiv2").css("marginLeft", 0 + "px");
-			} else {
-				$("#pratikabuSTTDiv2").css("marginLeft", pratikabu_stt_prefs.iconSize + "px");
-			}
-			
-			$("#pratikabuSTTArrowUp").css("float", pratikabu_stt_float);
-			$("#pratikabuSTTArrowUp").css("width", pratikabu_stt_prefs.iconSize + "px");
-			$("#pratikabuSTTArrowUp").css("height", pratikabu_stt_prefs.iconSize + "px");
+			$("#pratikabuSTTArrowUpLeft").css("float", "left");
+			$("#pratikabuSTTArrowUpRight").css("float", "right");
+			$(".pratikabuSTTArrowUp").css("width", pratikabu_stt_prefs.iconSize + "px");
+			$(".pratikabuSTTArrowUp").css("height", pratikabu_stt_prefs.iconSize + "px");
 			
 			if(!pratikabu_stt_prefs.hideControls) {
 				pratikabustt.showHideControlOptions(true);
@@ -291,6 +262,43 @@ var pratikabustt = {
 		}
 		
 		return true;
+	},
+	
+	createAddonHtml: function(location) {
+		// create div tag
+		var divTag = '<div id="pratikabuSTTDiv' + location +
+				'" class="pratikabuSTTDiv pratikabusttdiv-no-print"><img id="pratikabuSTTArrowUp' + location + '" class="pratikabuSTTArrowUp" ';
+		if(pratikabu_stt_dualArrow) {
+			if("hr" === pratikabu_stt_prefs.dArrang) {
+				divTag = divTag + '/><img id="pratikabuSTTArrowDown' + location + '" class="pratikabuSTTArrowDown" />';
+			} else {// if("vr" === pratikabu_stt_prefs.dArrang) {
+				divTag = divTag + 'style="display: block !important;" />' +
+						'<img id="pratikabuSTTArrowDown' + location + '" class="pratikabuSTTArrowDown" style="display: block !important;" />';
+			}
+		} else {
+			divTag = divTag + 'style="float: left;" />' +
+					'<div id="pratikabuSTTDiv2' + location + '" class="pratikabuSTTDiv2 pratikabusttdiv-no-print">' +
+						'<img id="pratikabuSTTPageUp' + location + '" class="pratikabuSTTPageUp" />' +
+						'<img id="pratikabuSTTClear' + location + '" class="pratikabuSTTClear" />' +
+						'<img id="pratikabuSTTPageDown' + location + '" class="pratikabuSTTPageDown" />' +
+						'<img id="pratikabuSTTSettings' + location + '" class="pratikabuSTTSettings" />' +
+					'</div>';
+		}
+		divTag = divTag + '</div>';
+		
+		$('body').prepend(divTag);
+		
+		// change the location of the main image
+		if("Right" === location) {// replace the locations of the icons
+			var showPagerButtons = "pager" === pratikabu_stt_prefs.controlOption;
+			if(showPagerButtons) {
+				$("#pratikabuSTTPageUp" + location).before($("#pratikabuSTTClear" + location));
+				$("#pratikabuSTTPageDown" + location).before($("#pratikabuSTTSettings" + location));
+			}
+			$("#pratikabuSTTDiv2Right").css("marginLeft", 0 + "px");
+		} else {
+			$("#pratikabuSTTDiv2Left").css("marginLeft", pratikabu_stt_prefs.iconSize + "px");
+		}
 	},
 	
 	togglePollableIcon: function() {
@@ -308,15 +316,15 @@ var pratikabustt = {
 			pratikabustt_browser_impl.setImageForId("pratikabuSTTSettings", "bottom-" + pratikabustt.getOtherImageSize() + ".png");
 		} else {
 			pratikabustt_browser_impl.setImageForId("pratikabuSTTSettings", "settings-" + pratikabustt.getOtherImageSize() + ".png");
-			$("#pratikabuSTTSettings").rotate(0);
+			$(".pratikabuSTTSettings").rotate(0);
 		}
 	},
 	
 	showHideAddon: function(boolShowAddon) {
 		if(boolShowAddon !== pratikabu_stt_bVisibility) {
 			if(boolShowAddon) {// show addon
-				if(pratikabustt.createAddonHtml()) {
-					$("#pratikabuSTTDiv").stop(true, true).fadeTo("slow", 1);
+				if(pratikabustt.createAddon()) {
+					$(".pratikabuSTTDiv").stop(true, true).fadeTo("slow", 1);
 				}
 			} else {// remove it
 				pratikabustt.removeAddonHtml();
@@ -342,8 +350,8 @@ var pratikabustt = {
 	},
 	
 	removeAddonHtml: function() {
-		$("#pratikabuSTTDiv").stop(true, true).fadeTo("slow", 0, function() {
-			$("#pratikabuSTTDiv").remove();
+		$(".pratikabuSTTDiv").stop(true, true).fadeTo("slow", 0, function() {
+			$(".pratikabuSTTDiv").remove();
 		});
 	},
 	
@@ -406,7 +414,7 @@ var pratikabustt = {
 	},
 	
 	hoverEffect: function(varId) {
-		$(varId).attr("class", "pratikabuSTTImg");// add it for all the images we've
+		$(varId).addClass("pratikabuSTTImg");// add it for all the images we've
 		$(varId).hide();
 		$(varId).stop(true, true).fadeTo(pratikabu_stt_fadeSpeed, pratikabu_stt_prefs.iconTransparency);
 		$(varId).css("cursor", "pointer");
@@ -421,7 +429,7 @@ var pratikabustt = {
 	
 	showUpArrowImage: function() {
 		if("myIcon" === pratikabu_stt_prefs.iconLib) {
-			$("#pratikabuSTTArrowUp").attr("src", "data:image/png;base64," + pratikabu_stt_prefs.userIcon);
+			$(".pratikabuSTTArrowUp").attr("src", "data:image/png;base64," + pratikabu_stt_prefs.userIcon);
 		} else {
 			var suffixString = pratikabu_stt_prefs.iconSize + "-" + pratikabu_stt_prefs.iconLib;
 			pratikabustt_browser_impl.setImageForId("pratikabuSTTArrowUp", suffixString + ".png");
@@ -431,8 +439,8 @@ var pratikabustt = {
 	showDualArrowImage: function() {
 		if("myIcon" === pratikabu_stt_prefs.dIconLib) {
 			var base64url = "data:image/png;base64," + pratikabu_stt_prefs.dUserIcon;
-			$("#pratikabuSTTArrowUp").attr("src", base64url);
-			$("#pratikabuSTTArrowDown").attr("src", base64url);
+			$(".pratikabuSTTArrowUp").attr("src", base64url);
+			$(".pratikabuSTTArrowDown").attr("src", base64url);
 		} else {
 			var iconNumber = parseInt(pratikabu_stt_prefs.dIconLib);
 			var iconName = "dual-";
@@ -451,7 +459,7 @@ var pratikabustt = {
 			pratikabustt_browser_impl.setImageForId("pratikabuSTTArrowDown", suffixString + ".png");
 		}
 		
-		$("#pratikabuSTTArrowDown").rotate(180);
+		$(".pratikabuSTTArrowDown").rotate(180);
 	},
 	
 	mainDivHover: function(hoverIn) {
@@ -477,19 +485,19 @@ var pratikabustt = {
 	
 	showHideControlOptions: function(boolShow) {
 		if(boolShow) {
-			$("#pratikabuSTTDiv2").stop(true, true);// to execute the fading out method
+			$(".pratikabuSTTDiv2").stop(true, true);// to execute the fading out method
 			var otherImagesSize = pratikabustt.getOtherImageSize();
 			var divSize = pratikabu_stt_prefs.iconSize + otherImagesSize;
 			if("pager" === pratikabu_stt_prefs.controlOption) {// check whether the page up is shown or not
 				divSize += otherImagesSize;// add pixels based on the settings
 			}
-			$("#pratikabuSTTDiv").css("width", divSize + "px");
-			$("#pratikabuSTTDiv2").fadeTo("slow", pratikabu_stt_hoverOpacity);
+			$(".pratikabuSTTDiv").css("width", divSize + "px");
+			$(".pratikabuSTTDiv2").fadeTo("slow", pratikabu_stt_hoverOpacity);
 		} else {
-			$("#pratikabuSTTDiv2").stop(true, true).fadeTo("slow", 0, function() {
-				$("#pratikabuSTTDiv2").hide();
+			$(".pratikabuSTTDiv2").stop(true, true).fadeTo("slow", 0, function() {
+				$(".pratikabuSTTDiv2").hide();
 				var divSize = pratikabu_stt_prefs.iconSize;
-				$("#pratikabuSTTDiv").css("width", divSize + "px");
+				$(".pratikabuSTTDiv").css("width", divSize + "px");
 			});
 		}
 	},
